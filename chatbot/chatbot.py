@@ -65,10 +65,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = conn.recv(1024)
             if not data:
                 break
-            message = data.decode()
+            message = data.decode()            
 
             # response = f"{message}"
             response = chatbot.respond(message)
 
             # Envia mensagem para o cliente
             conn.sendall(response.encode())
+            if message in ['sair','tchau','até mais','fim','encerrar']:
+                break

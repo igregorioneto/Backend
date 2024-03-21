@@ -20,9 +20,9 @@ client.connect(PORT, HOST, () => {
         // Mensagem para o servidor
         r1.question('Você: ', (input) => {
             client.write(input)
-            if (['sair','tchau','até mais','fim','encerrar'].includes(input)) {
+            /*if (['sair','tchau','até mais','fim','encerrar'].includes(input)) {
                 client.destroy()
-            }
+            }*/
             r1.close()
         })        
     }
@@ -33,7 +33,7 @@ client.connect(PORT, HOST, () => {
     client.on('data', (data) => {
         message = data.toString()
         console.log('ChatBot: ', message)
-        if (message === 'sair') {
+        if (message === 'Obrigado por usar nossos serviços! Tenha um ótimo dia.') {
             client.destroy()
         } else {
             sendMessage()
