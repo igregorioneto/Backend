@@ -44,6 +44,10 @@ pairs = [
         ['Obrigado por usar nossos serviços! Tenha um ótimo dia.']
     ],
     [
+        r'Saldo|Ver Saldo|Mostrar Saldo',
+        ['Seu Saldo é: ']
+    ],
+    [
         r'(.*)',
         ['Desculpe, não entendi. Você pode reformular sua pergunta?']
     ]
@@ -65,10 +69,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = conn.recv(1024)
             if not data:
                 break
-            message = data.decode()            
+            message = data.decode() 
 
             # response = f"{message}"
             response = chatbot.respond(message)
+            if message in ['saldo','mostrar saldo','ver saldo']: 
+                saldo = 500    
+                response += f"R$ {saldo},00" 
 
             # Envia mensagem para o cliente
             conn.sendall(response.encode())
