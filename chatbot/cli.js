@@ -20,20 +20,26 @@ client.connect(PORT, HOST, () => {
         // Mensagem para o servidor
         r1.question('Você: ', (input) => {
             client.write(input)
-        })
-
-        // Receber mensagem do servidor
-        client.on('data', (data) => {
-            message = data.toString()
-            if (message === 'sair') {
+            if (['sair','tchau','até mais','fim','encerrar'].includes(input)) {
                 client.destroy()
             }
-            console.log('ChatBot: ', message)
-            sendMessage()
-        })
+            r1.close()
+        })        
     }
 
     sendMessage()
+
+    // Receber mensagem do servidor
+    client.on('data', (data) => {
+        message = data.toString()
+        console.log('ChatBot: ', message)
+        if (message === 'sair') {
+            client.destroy()
+        } else {
+            sendMessage()
+        }            
+    })
+
 })
 
 // Tratar eventos de erro
