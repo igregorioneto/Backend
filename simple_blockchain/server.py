@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from uuid import uuid4
 from blockchain import Blockchain
 
 app = Flask(__name__)
+CORS(app)
 blockchain = Blockchain()
 
 # Identificador único para o nó
@@ -46,6 +48,14 @@ def new_transaction():
     index = blockchain.new_transaction(sender=values["sender"], recipient=values["recipient"], amount=values["amount"])
     response = {"message": f"A transação será adicionada ao bloco {index}"}
     return jsonify(response), 201
+
+@app.route("/chain", methods=["GET"])
+def full_chain():
+    response = {
+        "chain": blockchain.chain,
+        "length": len(blockchain.chain)
+    }
+    return jsonify(response), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
