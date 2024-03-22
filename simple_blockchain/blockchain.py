@@ -10,6 +10,11 @@ class Blockchain:
         # da classe Blockchain é criada.
         self.new_block(previous_hash="1",proof=100)
 
+    """
+    Adicionar um novo bloco a blockchain.
+    Parâmetros = Prova e Hash do bloco anterior.
+    Se o previous_hash não for fornecido é utilizado o do bloco anterior.
+    """
     def new_block(self, proof, previous_hash=None):
         block = {
             "index": len(self.chain) + 1,
@@ -24,6 +29,11 @@ class Blockchain:
         self.chain.append(block)
         return block
     
+    """
+    Este método é usado para adicionar uma nova transação.
+    Parametros = Remetente, Destinatário, Valor da transação
+    Retorna o índice do bloco que conterá a transação.
+    """
     def new_transaction(self, sender, recipient, amount):
         self.current_transactions.append({
             "sender": sender,
@@ -32,15 +42,29 @@ class Blockchain:
         })
         return self.last_block["index"] + 1
     
+    """
+    Método estático que calcula o hash de um bloco.
+    O Hash resultante é retornado.
+    """
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
     
+    """
+    Propriedade somente leitura. Retorna o bloco chain
+    """
     @property
     def last_block(self):
         return self.chain[-1]
     
+    """
+    Implementa o Prova de Trabalho que serve para resolver um problema específico.
+    Onde é usado para encontrar um valor (nonce) que, quando combinado com os dados do bloco,
+    produz um hash que atenda a determinados critérios.
+    Neste caso o critério específico da prova é que o hash resultante tenha quatro zeros iniciais.
+    O Método retorna uma prova gerada.
+    """
     def proof_of_work(self, last_proof):
         proof = 0
         while self.valid_proof(last_proof, proof) is False:
