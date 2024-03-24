@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 import pandas as pd
 
 app = Flask(__name__)
+CORS(app)
 
 # Carregando os dados
 df = pd.read_csv("dados/HousingData.csv")
@@ -9,9 +11,9 @@ df = pd.read_csv("dados/HousingData.csv")
 """
 Rota principal onde renderiza para o 'index.html'
 """
-@app.route("/")
-def index():
-    return render_template("index.html")
+#@app.route("/")
+#def index():
+#    return render_template("index.html")
 
 """
 Rota para análise com base nos valores informados
@@ -27,7 +29,14 @@ def analyze():
     max_value = round(df[feature].max(),2)
     min_value = round(df[feature].min(),2)
 
-    return render_template("analysis.html", feature=feature, mean_value=mean_value, median_value=median_value, max_value=max_value, min_value=min_value)
+    # return render_template("analysis.html", feature=feature, mean_value=mean_value, median_value=median_value, max_value=max_value, min_value=min_value)
+    return jsonify({
+        "feature": feature,
+        "mean_value": mean_value,
+        "median_value": median_value,
+        "max_value": max_value,
+        "min_value": min_value
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)

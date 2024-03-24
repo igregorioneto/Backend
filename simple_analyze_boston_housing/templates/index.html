@@ -9,7 +9,7 @@
 <body>
 
     <h1>Análise de Dados - Boston Housing</h1>
-    <form action="/analyze" method="post">
+    <form id="analysis-form">
         <label for="feature">Selecione uma caracteristica:</label>
         <select name="feature" id="feature">
             <option value="CRIM">Taxa de criminalidade per capita</option>
@@ -29,5 +29,32 @@
         </select>
         <button type="submit">Analisar</button>
     </form>    
+
+    <script>
+        document.getElementById("analysis-form").addEventListener("submit", function (event) {
+            event.preventDefault()
+            var formData = new FormData(this)
+            var xhr = new XMLHttpRequest()
+            xhr.open("POST", "http://127.0.0.1:5000/analyze")
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText)
+                    displayAnalysis(data)
+                }
+            }
+            xhr.send(formData)
+        })
+
+        function displayAnalysis(data) {
+            var newWindow = window.open("analysis.html")
+            newWindow.onload = function() {
+                newWindow.document.getElementById("feature").innerText = "Caracteristica selecionada: " + data.feature;
+        newWindow.document.getElementById("mean_value").innerText = "Média: " + data.mean_value;
+        newWindow.document.getElementById("median_value").innerText = "Mediana: " + data.median_value;
+        newWindow.document.getElementById("max_value").innerText = "Máximo: " + data.max_value;
+        newWindow.document.getElementById("min_value").innerText = "Mínimo: " + data.min_value;
+            }
+        }
+    </script>
 </body>
 </html>
