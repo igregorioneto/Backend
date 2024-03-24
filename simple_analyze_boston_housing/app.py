@@ -1,0 +1,33 @@
+from flask import Flask, render_template, request
+import pandas as pd
+
+app = Flask(__name__)
+
+# Carregando os dados
+df = pd.read_csv("dados/HousingData.csv")
+
+"""
+Rota principal onde renderiza para o 'index.html'
+"""
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+"""
+Rota para análise com base nos valores informados
+e renderiza para a página 'analysis.html'
+"""
+@app.route("/analyze", methods=["POST"])
+def analyze():
+    # Obter parâmetros formulário
+    feature = request.form.get("feature")
+    # Calcula estatísticas
+    mean_value = round(df[feature].mean(), 2)
+    median_value = round(df[feature].median(),2)
+    max_value = round(df[feature].max(),2)
+    min_value = round(df[feature].min(),2)
+
+    return render_template("analysis.html", feature=feature, mean_value=mean_value, median_value=median_value, max_value=max_value, min_value=min_value)
+
+if __name__ == "__main__":
+    app.run(debug=True)

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Dados - Boston Housing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Análise de Dados - Boston Housing</h1>
+    <form action="/analyze" method="post">
+        <label for="feature">Selecione uma caracteristica:</label>
+        <select name="feature" id="feature">
+            <option value="CRIM">Taxa de criminalidade per capita</option>
+            <option value="ZN">Proporção de terrenos residenciais zoneados para lotes com mais de 25.000 pés quadrados</option>
+            <option value="INDUS">Proporção de acres de negócios não comerciais por cidade</option>
+            <option value="CHAS">Charles River dummy variable (1 se o trecho limita o rio; 0 caso contrário)</option>
+            <option value="NOX">Concentração de óxidos nítricos (partes por 10 milhões)</option>
+            <option value="RM">Número médio de quartos por habitação</option>
+            <option value="AGE">Proporção de unidades ocupadas pelo proprietário construídas antes de 1940</option>
+            <option value="DIS">Distâncias ponderadas para cinco centros de emprego em Boston</option>
+            <option value="RAD">Índice de acessibilidade às rodovias radiais</option>
+            <option value="TAX">Taxa de imposto sobre a propriedade de valor total por US $ 10.000</option>
+            <option value="PTRATIO">Proporção de alunos para professores por cidade</option>
+            <option value="B">Proporção de pessoas de descendência afro-americana por cidade</option>
+            <option value="LSTAT">% menor status da população</option>
+            <option value="MEDV">Valor médio das casas ocupadas pelos proprietários em US $ 1.000</option>
+        </select>
+        <button type="submit">Analisar</button>
+    </form>    
+</body>
+</html>
