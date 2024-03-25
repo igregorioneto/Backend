@@ -38,3 +38,23 @@ Um simples blockchain criado com python e utilizando o javascript na parte da in
 - Javascript no frontend para comunicação com a API
 - Blockchain em Python
 </details>
+
+<details>
+<summary>Simple Analyze Boston Housing - simple_analyze_boston_housing</summary>
+
+## Simple Analyze Boston Housing
+
+### Descrição
+
+<img src="simple_analyze_boston_housing/assets/image.png" width="500">
+
+Criando uma simples análise do csv do HousingData encontrado no Kaggle. Utilizando api do Flask para criar exemplo de simples análises e também criando um filtro para pegar informações do arquivo. Também foi criado gráficos no template com javascript usando o chart.js. Usando o pandas para facilitar nas análises e filtros.
+
+### Recursos Principais
+
+- Filtros dos dados
+- Análise de cada dado
+- Gráfico em barras com Javascript
+- Flask para a api
+- Javascript no frontend para comunicação com a API
+</details>
