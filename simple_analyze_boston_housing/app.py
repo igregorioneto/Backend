@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import pandas as pd
+from csv import reader
 
 app = Flask(__name__)
 CORS(app)
@@ -37,6 +38,11 @@ def analyze():
         "max_value": max_value,
         "min_value": min_value
     })
+
+@app.route("/base", methods=["GET"])
+def base():
+    data = df.to_dict(orient="list")        
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.run(debug=True)
