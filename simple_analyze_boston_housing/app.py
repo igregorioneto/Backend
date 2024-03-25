@@ -44,5 +44,34 @@ def base():
     data = df.to_dict(orient="list")        
     return jsonify(data)
 
+@app.route("/filter", methods=["GET", "POST"])
+def filter():
+    if request.method == "POST":
+        data = request.get_json() 
+
+        required_fields = ["type", "asc", "des"]
+        if not all(field in data for field in required_fields):
+            return jsonify({"message": "Campos obrigatórios, por favor verificar."})
+         
+        asc = bool(data.get("asc", False))
+        des = bool(data.get("des", False))
+
+        type = data["type"]
+        if type not in df.columns:
+            return jsonify({"message": f"Cabeçalho '{type}' não existe. Informar novo valor!"})
+        
+        values = df[type].tolist()
+            
+        if asc:
+            values_in_order = sorted(values)
+        if des:
+            values_in_order = sorted(values, reverse=True)
+        if not asc and not des:
+            values_in_order = values
+        return jsonify({"response":values_in_order}),200
+        
+    else:
+        return jsonify({"message": "Necessário enviar um method='POST'."})
+
 if __name__ == "__main__":
     app.run(debug=True)
