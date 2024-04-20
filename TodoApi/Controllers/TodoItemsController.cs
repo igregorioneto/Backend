@@ -28,6 +28,23 @@ namespace TodoApi.Controllers
             return await _context.TodoItems.Select(x => ItemToDTO(x)).ToListAsync();
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetSearchTodoItems(string name)
+        {
+            IQueryable<TodoItem> query = _context.TodoItems;
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(x => x.Name.Contains(name));  
+            }
+
+            var matchItens = await query
+            .Select(x => ItemToDTO(x))
+            .ToListAsync();    
+
+            return matchItens;
+        }
+
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
