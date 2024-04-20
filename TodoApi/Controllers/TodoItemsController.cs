@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.JsonPatch;
 using TodoApi.Models;
 
 namespace TodoApi.Controllers
@@ -39,6 +40,34 @@ namespace TodoApi.Controllers
             }
 
             return ItemToDTO(todoItem);
+        }
+
+        // PATCH: api/TodoItems/5
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchTodoItem(long id, JsonPatchDocument<TodoItem> patchDocument)
+        {
+            var todoItem = await _context.TodoItems.FindAsync(id);
+            if (todoItem == null)
+            {
+                return NotFound();
+            }
+            patchDocument.ApplyTo(todoItem, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException) when (!TodoItemExists(id))
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
 
         // PUT: api/TodoItems/5
