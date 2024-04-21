@@ -1,0 +1,64 @@
+# Arquivos do Visual Studio
+.vs/
+*.user
+*.suo
+*.sln
+*.cache
+*.ldb
+*.pdb
+*.obj
+*.dll
+*.exe
+*.appx
+*.ipa
+*.msi
+*.csproj.user
+*.dbml.layout
+*.dbproj.suo
+
+# Diretórios de build
+bin/
+obj/
+Debug/
+Release/
+
+# Arquivos do pacote NuGet
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+
+# Arquivos gerados pelo .NET
+*.swp
+*.bak
+*.orig
+*.log
+*.dSYM
+
+# Arquivos temporários e de cache
+~$*
+_Tmp/
+_Tmp
+~*
+*.tmp
+*.temp
+
+# Arquivos de configuração de usuário
+*.vssettings
+*.vscode/
+
+# Arquivos de banco de dados locais
+*.mdf
+*.ldf
+
+# Arquivos de log
+*.log
+
+# Arquivos de dados do ReSharper
+_ReSharper.Caches/
+*.ReSharper
+*.ReSharper.Caches/
+
+# Arquivos de depuração
+*.suo
+*.user
