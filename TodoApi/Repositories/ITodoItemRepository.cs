@@ -9,7 +9,7 @@ namespace TodoApi.Repositories
 {
     public interface ITodoItemRepository
     {
-        Task<ActionResult<IEnumerable<TodoItem>>> GetAllAsync();
+        Task<IEnumerable<TodoItem>> GetAllAsync();
         Task<TodoItem> GetByIdAsync(long id);
         Task AddAsync(TodoItem item);
         Task UpdateAsync(TodoItem item);

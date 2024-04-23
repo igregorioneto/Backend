@@ -26,9 +26,10 @@ namespace TodoApi.Controllers
 
         // GET: api/TodoItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
+        public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
-            return await _service.GetAllTodoItemsAsync();
+            var todoItemsDTO = await _service.GetAllTodoItemsAsync();
+            return Ok(todoItemsDTO);
         }
 
         [HttpGet("search")]
@@ -42,7 +43,6 @@ namespace TodoApi.Controllers
             }
 
             var matchItens = await query
-            .Select(x => ItemToDTO(x))
             .ToListAsync();    
 
             return matchItens;
@@ -137,47 +137,40 @@ namespace TodoApi.Controllers
         [HttpPost]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItemDTO todoDTO)
         {
-            var todoItem = new TodoItem
+            try
             {
-                IsComplete = todoDTO.IsComplete,
-                Name = todoDTO.Name,
-            };
+                await _service.CreateTodoItemAsync(todoDTO);
 
-            await _service.CreateTodoItemAsync(todoItem);
-
-            // return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
-            return CreatedAtAction(
-                nameof(GetTodoItem), 
-                new { id = todoItem.Id }, 
-                todoItem);
+                return CreatedAtAction(
+                    nameof(GetTodoItem), 
+                    new { id = todoDTO.Id }, 
+                    todoDTO);
+                }
+            catch (TodoItemCreationException ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodoItem(long id)
         {
-            var todoItem = await _service.GetTodoItemByIdAsync(id);
-            if (todoItem == null)
+            try
+            {
+                await _service.DeleteTodoItemAsync(id);
+
+                return NoContent();
+            }
+            catch (TodoItemNotFoundException)
             {
                 return NotFound();
             }
-
-            await _service.DeleteTodoItemAsync(todoItem);
-
-            return NoContent();
         }
 
         private async Task<bool> TodoItemExists(long id)
         {
             return await _service.ExistsAsync(id);
         }
-
-        private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
-            new TodoItemDTO
-            {
-                Id = todoItem.Id,
-                Name = todoItem.Name,
-                IsComplete = todoItem.IsComplete,
-            };
     }
 }

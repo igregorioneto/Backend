@@ -20,12 +20,25 @@ namespace TodoApi.Services
 
         public async Task CreateTodoItemAsync(TodoItemDTO item)
         {
-            await _repository.AddAsync(DTOToItem(item));
+            try
+            {
+                var todoItem = new TodoItem
+                {
+                    IsComplete = item.IsComplete,
+                    Name = item.Name,
+                };
+                await _repository.AddAsync(todoItem);
+            }
+            catch (Exception ex)
+            {
+                throw new TodoItemCreationException($"Failed to create TodoItem. {ex.Message}");
+            }
         }
 
-        public async Task DeleteTodoItemAsync(TodoItemDTO item)
+        public async Task DeleteTodoItemAsync(long id)
         {
-            await _repository.DeleteAsync(item);
+            var todoItem = await _repository.GetByIdAsync(id) ?? throw new TodoItemNotFoundException(id);
+            await _repository.DeleteAsync(todoItem);
         }
 
         public async Task<bool> ExistsAsync(long id)
@@ -36,7 +49,7 @@ namespace TodoApi.Services
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetAllTodoItemsAsync()
         {
             var todoItems = await _repository.GetAllAsync();
-            return ItemToDTO(todoItems);
+            return todoItems.Select(ItemToDTO).ToList();
         }
 
         public IQueryable<TodoItem> GetQueryable()
@@ -46,13 +59,7 @@ namespace TodoApi.Services
 
         public async Task<TodoItemDTO> GetTodoItemByIdAsync(long id)
         {
-            var todoItem = await _repository.GetByIdAsync(id);
-
-            if (todoItem == null)
-            {
-                throw new TodoItemNotFoundException(id);
-            }
-
+            var todoItem = await _repository.GetByIdAsync(id) ?? throw new TodoItemNotFoundException(id);
             return ItemToDTO(todoItem);
         }
 
@@ -65,7 +72,7 @@ namespace TodoApi.Services
         private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
             new TodoItemDTO
             {
-                Id = todoItem.Id,
+                Id = todoItem.Id,   
                 Name = todoItem.Name,
                 IsComplete = todoItem.IsComplete,
             };

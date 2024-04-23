@@ -13,7 +13,7 @@ namespace TodoApi.Services
         Task<TodoItemDTO> GetTodoItemByIdAsync(long id);
         Task CreateTodoItemAsync(TodoItemDTO item);
         Task UpdateTodoItemAsync(TodoItemDTO item);
-        Task DeleteTodoItemAsync(TodoItemDTO item);
+        Task DeleteTodoItemAsync(long id);
         Task<bool> ExistsAsync(long id);
         IQueryable<TodoItem> GetQueryable();
     }

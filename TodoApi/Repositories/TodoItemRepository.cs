@@ -17,7 +17,7 @@ namespace TodoApi.Repositories
             _context = context;
         }
 
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetAllAsync()
+        public async Task<IEnumerable<TodoItem>> GetAllAsync()
         {
             return await _context.TodoItems.ToListAsync();
         }
