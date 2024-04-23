@@ -9,11 +9,11 @@ namespace TodoApi.Services
 {
     public interface ITodoItemService
     {
-        Task<ActionResult<IEnumerable<TodoItem>>> GetAllTodoItemsAsync();
-        Task<TodoItem> GetTodoItemByIdAsync(long id);
-        Task CreateTodoItemAsync(TodoItem item);
-        Task UpdateTodoItemAsync(TodoItem item);
-        Task DeleteTodoItemAsync(TodoItem item);
+        Task<ActionResult<IEnumerable<TodoItemDTO>>> GetAllTodoItemsAsync();
+        Task<TodoItemDTO> GetTodoItemByIdAsync(long id);
+        Task CreateTodoItemAsync(TodoItemDTO item);
+        Task UpdateTodoItemAsync(TodoItemDTO item);
+        Task DeleteTodoItemAsync(TodoItemDTO item);
         Task<bool> ExistsAsync(long id);
         IQueryable<TodoItem> GetQueryable();
     }

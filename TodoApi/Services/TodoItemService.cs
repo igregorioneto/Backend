@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using TodoApi.Exceptions;
 using TodoApi.Models;
 using TodoApi.Repositories;
 
@@ -17,12 +18,12 @@ namespace TodoApi.Services
             _repository = repository;
         }
 
-        public async Task CreateTodoItemAsync(TodoItem item)
+        public async Task CreateTodoItemAsync(TodoItemDTO item)
         {
-            await _repository.AddAsync(item);
+            await _repository.AddAsync(DTOToItem(item));
         }
 
-        public async Task DeleteTodoItemAsync(TodoItem item)
+        public async Task DeleteTodoItemAsync(TodoItemDTO item)
         {
             await _repository.DeleteAsync(item);
         }
@@ -32,9 +33,10 @@ namespace TodoApi.Services
             return await _repository.ExistsAsync(id);
         }
 
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetAllTodoItemsAsync()
+        public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetAllTodoItemsAsync()
         {
-            return await _repository.GetAllAsync();
+            var todoItems = await _repository.GetAllAsync();
+            return ItemToDTO(todoItems);
         }
 
         public IQueryable<TodoItem> GetQueryable()
@@ -42,14 +44,38 @@ namespace TodoApi.Services
             return _repository.GetQueryable();
         }
 
-        public async Task<TodoItem> GetTodoItemByIdAsync(long id)
+        public async Task<TodoItemDTO> GetTodoItemByIdAsync(long id)
         {
-            return await _repository.GetByIdAsync(id);
+            var todoItem = await _repository.GetByIdAsync(id);
+
+            if (todoItem == null)
+            {
+                throw new TodoItemNotFoundException(id);
+            }
+
+            return ItemToDTO(todoItem);
         }
 
-        public async Task UpdateTodoItemAsync(TodoItem item)
+        public async Task UpdateTodoItemAsync(TodoItemDTO item)
         {
-            await _repository.UpdateAsync(item);
+            var todoItem = DTOToItem(item);
+            await _repository.UpdateAsync(todoItem);
         }
+
+        private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
+            new TodoItemDTO
+            {
+                Id = todoItem.Id,
+                Name = todoItem.Name,
+                IsComplete = todoItem.IsComplete,
+            };
+
+        private static TodoItem DTOToItem(TodoItemDTO todoItem) =>
+            new TodoItem
+            {
+                Id = todoItem.Id,
+                Name = todoItem.Name,
+                IsComplete = todoItem.IsComplete,
+            };
     }
 }

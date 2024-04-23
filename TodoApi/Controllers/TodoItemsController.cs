@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using TodoApi.Models;
 using TodoApi.Repositories;
 using TodoApi.Services;
+using TodoApi.Exceptions;
 
 namespace TodoApi.Controllers
 {
@@ -51,19 +52,20 @@ namespace TodoApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
         {
-            var todoItem = await _service.GetTodoItemByIdAsync(id);
-
-            if (todoItem == null)
+            try
+            {
+                var todoItem = await _service.GetTodoItemByIdAsync(id);
+                return Ok(todoItem);
+            }
+            catch (TodoItemNotFoundException)
             {
                 return NotFound();
             }
-
-            return ItemToDTO(todoItem);
         }
 
         // PATCH: api/TodoItems/5
         [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchTodoItem(long id, JsonPatchDocument<TodoItem> patchDocument)
+        public async Task<IActionResult> PatchTodoItem(long id, JsonPatchDocument<TodoItemDTO> patchDocument)
         {
             if (await TodoItemExists(id))
             {
