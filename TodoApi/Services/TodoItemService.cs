@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TodoApi.Exceptions;
 using TodoApi.Models;
 using TodoApi.Repositories;
@@ -50,6 +51,21 @@ namespace TodoApi.Services
         {
             var todoItems = await _repository.GetAllAsync();
             return todoItems.Select(ItemToDTO).ToList();
+        }
+
+         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetSearchTodoItemForName(string name)
+        {
+            IQueryable<TodoItem> query = GetQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(x => x.Name.Contains(name));  
+            }
+
+            var matchItens = await query
+            .ToListAsync();    
+
+            return matchItens.Select(ItemToDTO).ToList();
         }
 
         public IQueryable<TodoItem> GetQueryable()

@@ -35,15 +35,7 @@ namespace TodoApi.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetSearchTodoItems(string name)
         {
-            IQueryable<TodoItem> query = _service.GetQueryable();
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                query = query.Where(x => x.Name.Contains(name));  
-            }
-
-            var matchItens = await query
-            .ToListAsync();    
+            var matchItens = await _service.GetSearchTodoItemForName(name);  
 
             return matchItens;
         }

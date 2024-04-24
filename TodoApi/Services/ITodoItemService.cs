@@ -16,5 +16,6 @@ namespace TodoApi.Services
         Task DeleteTodoItemAsync(long id);
         Task<bool> ExistsAsync(long id);
         IQueryable<TodoItem> GetQueryable();
+        Task<ActionResult<IEnumerable<TodoItemDTO>>> GetSearchTodoItemForName(string name);
     }
 }
