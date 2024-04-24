@@ -59,30 +59,16 @@ namespace TodoApi.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchTodoItem(long id, JsonPatchDocument<TodoItemDTO> patchDocument)
         {
-            if (await TodoItemExists(id))
+            var result = await _service.PatchTodoItem(id, patchDocument, ModelState);
+
+            if (result == TodoServiceResult.NotFound)
             {
                 return NotFound();
             }
 
-            var todoItem = await _service.GetTodoItemByIdAsync(id);
-            if (todoItem == null)
-            {
-                return NotFound();
-            }
-            patchDocument.ApplyTo(todoItem, ModelState);
-
-            if (!ModelState.IsValid)
+            if (result == TodoServiceResult.Invalid)
             {
                 return BadRequest(ModelState);
-            }
-
-            try
-            {
-                await _service.UpdateTodoItemAsync(todoItem);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return NotFound();
             }
 
             return NoContent();

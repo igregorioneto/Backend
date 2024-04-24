@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Exceptions;
 using TodoApi.Models;
@@ -83,6 +85,33 @@ namespace TodoApi.Services
         {
             var todoItem = DTOToItem(item);
             await _repository.UpdateAsync(todoItem);
+        }
+
+        public async Task<TodoServiceResult> PatchTodoItem(long id, JsonPatchDocument<TodoItemDTO> patchDocument, ModelStateDictionary modelState)
+        {
+            var todoItem = await _repository.GetByIdAsync(id);
+            if (todoItem == null)
+            {
+                return TodoServiceResult.NotFound;
+            }
+
+            patchDocument.ApplyTo(ItemToDTO(todoItem), modelState);
+
+            if (!modelState.IsValid)
+            {
+                return TodoServiceResult.Invalid;
+            }
+
+            try
+            {
+                await _repository.UpdateAsync(todoItem);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return TodoServiceResult.NotFound;
+            }
+
+            return TodoServiceResult.Success;
         }
 
         private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
