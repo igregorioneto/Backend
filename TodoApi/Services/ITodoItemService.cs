@@ -14,7 +14,7 @@ namespace TodoApi.Services
         Task<ActionResult<IEnumerable<TodoItemDTO>>> GetAllTodoItemsAsync();
         Task<TodoItemDTO> GetTodoItemByIdAsync(long id);
         Task CreateTodoItemAsync(TodoItemDTO item);
-        Task UpdateTodoItemAsync(TodoItemDTO item);
+        Task<TodoServiceResult> UpdateTodoItemAsync(long id, TodoItemDTO item);
         Task DeleteTodoItemAsync(long id);
         Task<bool> ExistsAsync(long id);
         IQueryable<TodoItem> GetQueryable();

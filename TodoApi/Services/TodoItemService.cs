@@ -81,10 +81,32 @@ namespace TodoApi.Services
             return ItemToDTO(todoItem);
         }
 
-        public async Task UpdateTodoItemAsync(TodoItemDTO item)
+        public async Task<TodoServiceResult> UpdateTodoItemAsync(long id,TodoItemDTO todoDTO)
         {
-            var todoItem = DTOToItem(item);
-            await _repository.UpdateAsync(todoItem);
+            if (id != todoDTO.Id)
+            {
+                return TodoServiceResult.Invalid;
+            }
+
+            var todoItem = await _repository.GetByIdAsync(id);
+            if (todoItem == null)
+            {
+                return TodoServiceResult.NotFound;
+            }
+
+            todoItem.Name = todoDTO.Name;
+            todoItem.IsComplete = todoDTO.IsComplete;
+
+            try
+            {
+                await _repository.UpdateAsync(todoItem);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return TodoServiceResult.NotFound;
+            }
+
+            return TodoServiceResult.NotFound;
         }
 
         public async Task<TodoServiceResult> PatchTodoItem(long id, JsonPatchDocument<TodoItemDTO> patchDocument, ModelStateDictionary modelState)

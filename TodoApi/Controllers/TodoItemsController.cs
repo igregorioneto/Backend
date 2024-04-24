@@ -79,35 +79,19 @@ namespace TodoApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTodoItem(long id, TodoItemDTO todoDTO)
         {
-            if (id != todoDTO.Id)
+            var result = await _service.UpdateTodoItemAsync(id, todoDTO);
+
+            if (result == TodoServiceResult.NotFound)
+            {
+                return NotFound();
+            }
+
+            if (result == TodoServiceResult.Invalid)
             {
                 return BadRequest();
             }
 
-            if (!await TodoItemExists(id))
-            {
-                return NotFound();
-            }
-
-            var todoItem = await _service.GetTodoItemByIdAsync(id);
-            if (todoItem == null)
-            {
-                return NotFound();
-            }
-
-            todoItem.Name = todoDTO.Name;
-            todoItem.IsComplete = todoDTO.IsComplete;
-
-            try
-            {
-                await _service.UpdateTodoItemAsync(todoItem);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return NotFound();
-            }
-
-            return NoContent();
+            return NotFound();
         }
 
         // POST: api/TodoItems
