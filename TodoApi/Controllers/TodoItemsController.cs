@@ -28,8 +28,19 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
-            var todoItemsDTO = await _service.GetAllTodoItemsAsync();
-            return Ok(todoItemsDTO);
+            try
+            {
+                var todoItemsDTO = await _service.GetAllTodoItemsAsync();
+                return Ok(todoItemsDTO);
+            }
+            catch (TodoServiceException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new 
+                {
+                    Error = "Error getting task items.",
+                    Message = ex.Message,
+                });
+            }
         }
 
         [HttpGet("search")]

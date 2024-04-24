@@ -51,8 +51,19 @@ namespace TodoApi.Services
 
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetAllTodoItemsAsync()
         {
-            var todoItems = await _repository.GetAllAsync();
-            return todoItems.Select(ItemToDTO).ToList();
+            try
+            {
+                var todoItems = await _repository.GetAllAsync();
+                if(todoItems == null || !todoItems.Any())
+                {
+                    throw new TodoServiceException("No task items found.");
+                }
+                return todoItems.Select(ItemToDTO).ToList();
+            }
+            catch (Exception ex)
+            {                
+                throw new TodoServiceException("Error getting task items.", ex);
+            }
         }
 
          public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetSearchTodoItemForName(string name)
