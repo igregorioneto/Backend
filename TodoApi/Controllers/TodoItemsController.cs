@@ -46,9 +46,14 @@ namespace TodoApi.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetSearchTodoItems(string name)
         {
-            var matchItens = await _service.GetSearchTodoItemForName(name);  
-
-            return matchItens;
+            try
+            {
+                return Ok(await _service.GetSearchTodoItemForName(name));
+            }
+            catch (TodoItemSearchException ex)
+            {
+                return StatusCode(500, ex);
+            }
         }
 
         // GET: api/TodoItems/5
@@ -70,19 +75,26 @@ namespace TodoApi.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchTodoItem(long id, JsonPatchDocument<TodoItemDTO> patchDocument)
         {
-            var result = await _service.PatchTodoItem(id, patchDocument, ModelState);
-
-            if (result == TodoServiceResult.NotFound)
+            try
             {
-                return NotFound();
-            }
+                var result = await _service.PatchTodoItem(id, patchDocument, ModelState);
 
-            if (result == TodoServiceResult.Invalid)
+                if (result == TodoServiceResult.NotFound)
+                {
+                    return NotFound();
+                }
+
+                if (result == TodoServiceResult.Invalid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                return NoContent();
+            }
+            catch (TodoItemPatchException ex)
             {
-                return BadRequest(ModelState);
+                return StatusCode(500, ex);
             }
-
-            return NoContent();
         }
 
         // PUT: api/TodoItems/5
@@ -90,19 +102,34 @@ namespace TodoApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTodoItem(long id, TodoItemDTO todoDTO)
         {
-            var result = await _service.UpdateTodoItemAsync(id, todoDTO);
-
-            if (result == TodoServiceResult.NotFound)
+            try
             {
-                return NotFound();
-            }
+                var result = await _service.UpdateTodoItemAsync(id, todoDTO);
 
-            if (result == TodoServiceResult.Invalid)
+                switch (result)
+                {
+                    case TodoServiceResult.Success:
+                        return NoContent();
+                    case TodoServiceResult.NotFound:
+                        return NotFound($"Todo item with ID {id} was not found.");
+                    case TodoServiceResult.Invalid:
+                        return BadRequest("Invalid request. Check the provided data.");
+                    default:
+                        return StatusCode(500, "An unknown error occurred.");
+                }
+            }
+            catch (DbUpdateConcurrencyException ex)
             {
-                return BadRequest();
+                return Conflict($"Concurrency conflict when updating Todo item with ID {id}. Please try again. {ex.Message}");
             }
-
-            return NotFound();
+            catch (TodoItemUpdateException ex)
+            {
+                return StatusCode(500,$"Error updating Todo item with ID {id}: {ex.Message}");
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occurred. {ex.Message}");
+            }
         }
 
         // POST: api/TodoItems

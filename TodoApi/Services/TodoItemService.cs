@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using TodoApi.Exceptions;
 using TodoApi.Models;
 using TodoApi.Repositories;
@@ -68,17 +70,24 @@ namespace TodoApi.Services
 
          public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetSearchTodoItemForName(string name)
         {
-            IQueryable<TodoItem> query = GetQueryable();
-
-            if (!string.IsNullOrEmpty(name))
+            try
             {
-                query = query.Where(x => x.Name.Contains(name));  
+                IQueryable<TodoItem> query = GetQueryable();
+
+                if (!string.IsNullOrEmpty(name))
+                {
+                    query = query.Where(x => x.Name.Contains(name));  
+                }
+
+                var matchItens = await query
+                .ToListAsync();    
+
+                return matchItens.Select(ItemToDTO).ToList();
             }
-
-            var matchItens = await query
-            .ToListAsync();    
-
-            return matchItens.Select(ItemToDTO).ToList();
+            catch (Exception ex)
+            {
+                throw new TodoItemSearchException($"An error occurred while searching for TodoItems. {ex}");
+            }
         }
 
         public IQueryable<TodoItem> GetQueryable()
@@ -96,13 +105,13 @@ namespace TodoApi.Services
         {
             if (id != todoDTO.Id)
             {
-                return TodoServiceResult.Invalid;
+                throw new InvalidOperationException($"The ID from the parameter ({id}) does not match the DTO's ID ({todoDTO.Id})");
             }
 
             var todoItem = await _repository.GetByIdAsync(id);
             if (todoItem == null)
             {
-                return TodoServiceResult.NotFound;
+                throw new TodoItemNotFoundException(id);
             }
 
             todoItem.Name = todoDTO.Name;
@@ -112,9 +121,13 @@ namespace TodoApi.Services
             {
                 await _repository.UpdateAsync(todoItem);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                return TodoServiceResult.NotFound;
+                throw new DbUpdateConcurrencyException($"Concurrency exception when updating Todo item with ID {id}. {ex}");
+            }
+            catch(Exception ex)
+            {
+                throw new TodoItemUpdateException($"Unexpected exception when updating Todo item with ID {id}. {ex}");
             }
 
             return TodoServiceResult.NotFound;
@@ -122,29 +135,40 @@ namespace TodoApi.Services
 
         public async Task<TodoServiceResult> PatchTodoItem(long id, JsonPatchDocument<TodoItemDTO> patchDocument, ModelStateDictionary modelState)
         {
-            var todoItem = await _repository.GetByIdAsync(id);
-            if (todoItem == null)
-            {
-                return TodoServiceResult.NotFound;
-            }
-
-            patchDocument.ApplyTo(ItemToDTO(todoItem), modelState);
-
-            if (!modelState.IsValid)
-            {
-                return TodoServiceResult.Invalid;
-            }
-
             try
             {
-                await _repository.UpdateAsync(todoItem);
+                var todoItem = await _repository.GetByIdAsync(id);
+                if (todoItem == null)
+                {
+                    return TodoServiceResult.NotFound;
+                }
+
+                patchDocument.ApplyTo(ItemToDTO(todoItem), modelState);
+
+                if (!modelState.IsValid)
+                {
+                    return TodoServiceResult.Invalid;
+                }
+
+                try
+                {
+                    await _repository.UpdateAsync(todoItem);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return TodoServiceResult.NotFound;
+                }
+
+                return TodoServiceResult.Success;
             }
-            catch (DbUpdateConcurrencyException)
+            catch(DbUpdateConcurrencyException)
             {
                 return TodoServiceResult.NotFound;
             }
-
-            return TodoServiceResult.Success;
+            catch (Exception ex)
+            {
+                throw new TodoItemPatchException($"An exception in relation to updating Patch. {ex}");
+            }
         }
 
         private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
