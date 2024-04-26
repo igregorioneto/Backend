@@ -58,3 +58,15 @@ Criando uma simples análise do csv do HousingData encontrado no Kaggle. Utiliza
 - Flask para a api
 - Javascript no frontend para comunicação com a API
 </details>
+
+<details>
+<summary>Todo List With .Net 8 - TodoApi</summary>
+
+## Simple Analyze Boston Housing
+
+### Descrição
+
+<img src="TodoApi/assets/image.png" width="500">
+
+Criando um todo list com C#/.Net, contendo o Swagger, estrutura de projetos, criando exceções personalizadas.
+</details>
