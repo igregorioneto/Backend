@@ -66,7 +66,7 @@ Criando uma simples análise do csv do HousingData encontrado no Kaggle. Utiliza
 
 ### Descrição
 
-<img src="TodoApi/assets/image.png" width="500">
+<img src="TodoApi/assets/todo.png" width="500">
 
 Criando um todo list com C#/.Net, contendo o Swagger, estrutura de projetos, criando exceções personalizadas.
 </details>
